@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo JsonP</title>
+</head>
+
+<body>
+    <button id="queryjsonp">queryjsonp</button>
+    <script>
+        // only get method
+        function queryDataFromJsonp(url) {
+            return new Promise((resolve) => {
+                const callbackName = `callback${new Date().valueOf()}`
+                const jsopExecScript = document.createElement('script')
+                jsopExecScript.src = `http://127.0.0.1:40000${url}?callback=${callbackName}`
+                document.body.appendChild(jsopExecScript)
+                window[callbackName] = (valueFromServer) => {
+                    resolve(valueFromServer)
+                    delete  window[callbackName]
+                    document.body.removeChild(jsopExecScript)
+                }
+            })
+        }
+        const queryjsonpBtn = document.querySelector('#queryjsonp')
+        queryjsonpBtn.addEventListener('click',async()=>{
+            try{
+                const res =  await queryDataFromJsonp('/jsonp-data')
+                console.log('jsonpData: ' ,res)
+            }catch(err){
+                console.log('queryerr: ' ,err)
+            }
+        })
+    </script>
+</body>
+
+</html>
